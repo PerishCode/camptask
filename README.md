@@ -40,13 +40,13 @@ cargo test
 
 ```bash
 curl -fsSL -o /tmp/camptask-install.sh https://raw.githubusercontent.com/PerishCode/camptask/main/scripts/install.sh
-bash /tmp/camptask-install.sh --version v0.1.2
+bash /tmp/camptask-install.sh --version v0.1.3
 ```
 
 Install to a custom prefix:
 
 ```bash
-bash /tmp/camptask-install.sh --version v0.1.2 --prefix /tmp/camptask-local
+bash /tmp/camptask-install.sh --version v0.1.3 --prefix /tmp/camptask-local
 ```
 
 Initialize resources (default target `~/.camptask/resources`, overwrite by default):

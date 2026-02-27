@@ -3,7 +3,10 @@
   "name": "camptask resources",
   "contents": [
     "prompts/LEADER.md",
+    "prompts/LEADER.ref.md",
+    "prompts/REF_MIGRATION.md",
     "prompts/WORKER.md",
+    "prompts/WORKER.ref.md",
     "templates/camp_handoff.md",
     "templates/work_report.md"
   ]
