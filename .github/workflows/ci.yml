@@ -25,10 +25,22 @@ jobs:
       - name: Test
         run: cargo test --locked
 
-      - name: Install smoke
-        run: bash scripts/install.sh --prefix /tmp/camptask-ci
+      - name: Download install script
+        run: curl -fsSL -o /tmp/camptask-install.sh https://raw.githubusercontent.com/PerishCode/camptask/main/scripts/install.sh
+
+      - name: Install from raw script
+        run: bash /tmp/camptask-install.sh --prefix /tmp/camptask-ci
 
       - name: Verify installed binary
         run: |
           /tmp/camptask-ci/bin/camptask > /tmp/camptask-ci/camptask.out
           grep -q "camptask ready" /tmp/camptask-ci/camptask.out
+
+      - name: Download uninstall script
+        run: curl -fsSL -o /tmp/camptask-uninstall.sh https://raw.githubusercontent.com/PerishCode/camptask/main/scripts/uninstall.sh
+
+      - name: Uninstall from raw script
+        run: bash /tmp/camptask-uninstall.sh --prefix /tmp/camptask-ci
+
+      - name: Verify uninstall
+        run: test ! -x /tmp/camptask-ci/bin/camptask
