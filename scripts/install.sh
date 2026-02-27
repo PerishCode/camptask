@@ -3,23 +3,32 @@ set -euo pipefail
 
 PREFIX="${HOME}/.local"
 REPO_URL="https://github.com/PerishCode/camptask.git"
-REF="main"
+VERSION=""
 
 usage() {
   cat <<'EOF'
-Usage: install.sh [--prefix <path>] [--repo-url <url>] [--ref <git-ref>]
+Usage: install.sh --version vX.Y.Z|X.Y.Z [--prefix <path>] [--repo-url <url>]
 
 Install camptask from remote source using cargo install.
 
 Options:
   --prefix <path>   Install root prefix (default: ~/.local)
+  --version <ver>   Install from git tag (required; vX.Y.Z or X.Y.Z)
   --repo-url <url>  Git repository URL (default: https://github.com/PerishCode/camptask.git)
-  --ref <git-ref>   Git ref for install (default: main)
   -h, --help        Show this help
 
 Installed binary path:
   <prefix>/bin/camptask
 EOF
+}
+
+normalize_version() {
+  local raw="$1"
+  if [[ "${raw}" == v* ]]; then
+    printf '%s\n' "${raw}"
+  else
+    printf 'v%s\n' "${raw}"
+  fi
 }
 
 while [[ $# -gt 0 ]]; do
@@ -40,12 +49,13 @@ while [[ $# -gt 0 ]]; do
       fi
       shift 2
       ;;
-    --ref)
-      REF="${2:-}"
-      if [[ -z "${REF}" ]]; then
-        echo "--ref requires a value" >&2
+    --version)
+      VERSION="${2:-}"
+      if [[ -z "${VERSION}" ]]; then
+        echo "--version requires a value" >&2
         exit 1
       fi
+      VERSION="$(normalize_version "${VERSION}")"
       shift 2
       ;;
     -h|--help)
@@ -67,12 +77,18 @@ fi
 
 mkdir -p "${PREFIX}/bin"
 
+if [[ -z "${VERSION}" ]]; then
+  echo "--version is required" >&2
+  usage >&2
+  exit 1
+fi
+
 cargo install \
   --git "${REPO_URL}" \
-  --branch "${REF}" \
+  --tag "${VERSION}" \
   --bin camptask \
   --locked \
   --force \
   --root "${PREFIX}"
 
-echo "Installed camptask (${REF}) to ${PREFIX}/bin/camptask"
+echo "Installed camptask (${VERSION}) to ${PREFIX}/bin/camptask"

@@ -40,13 +40,19 @@ cargo test
 
 ```bash
 curl -fsSL -o /tmp/camptask-install.sh https://raw.githubusercontent.com/PerishCode/camptask/main/scripts/install.sh
-bash /tmp/camptask-install.sh
+bash /tmp/camptask-install.sh --version v0.1.0
 ```
 
 Custom prefix:
 
 ```bash
-bash /tmp/camptask-install.sh --prefix /tmp/camptask-local
+bash /tmp/camptask-install.sh --version v0.1.0 --prefix /tmp/camptask-local
+```
+
+Install a tagged version:
+
+```bash
+bash /tmp/camptask-install.sh --version v0.1.0 --prefix /tmp/camptask-local
 ```
 
 Uninstall:
