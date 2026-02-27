@@ -35,3 +35,15 @@ It is not the convention itself and not tied to any specific agent runtime.
 cargo fmt --check
 cargo test
 ```
+
+## Local Install
+
+```bash
+bash scripts/install.sh
+```
+
+Custom prefix:
+
+```bash
+bash scripts/install.sh --prefix /tmp/camptask-local
+```
