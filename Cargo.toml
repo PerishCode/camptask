@@ -1,6 +1,8 @@
 [package]
 name = "camptask"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
+tempfile = "3.23.0"
+zip = { version = "2.4.2", default-features = false, features = ["deflate"] }

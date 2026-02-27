@@ -2,5 +2,8 @@ use camptask::app::App;
 
 fn main() {
     let app = App::new("camptask");
-    camptask::run(&app);
+    if let Err(error) = camptask::run(&app) {
+        eprintln!("camptask: {error}");
+        std::process::exit(1);
+    }
 }

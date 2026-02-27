@@ -1,0 +1,10 @@
+{
+  "schema": "camptask.resources.v1",
+  "name": "camptask resources",
+  "contents": [
+    "prompts/leader.md",
+    "prompts/worker.md",
+    "templates/camp_handoff.md",
+    "templates/work_report.md"
+  ]
+}
