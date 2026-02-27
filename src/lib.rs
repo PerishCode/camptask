@@ -24,9 +24,10 @@ pub fn run(app: &App) -> Result<(), String> {
         "init" => run_init(args.get(1..).unwrap_or(&[])),
         "agent" => run_agent(args.get(1..).unwrap_or(&[])),
         "work" => run_work(args.get(1..).unwrap_or(&[])),
-        _ => {
-            Err("unknown command, supported: init, agent init, work init|update|finish".to_string())
-        }
+        _ => Err(
+            "unknown command, supported: init, agent init, work init|update|finish|status"
+                .to_string(),
+        ),
     }
 }
 
@@ -92,14 +93,17 @@ fn run_agent(args: &[String]) -> Result<(), String> {
 
 fn run_work(args: &[String]) -> Result<(), String> {
     if args.is_empty() {
-        return Err("work subcommand required, supported: init, update, finish".to_string());
+        return Err(
+            "work subcommand required, supported: init, update, finish, status".to_string(),
+        );
     }
 
     match args[0].as_str() {
         "init" => run_work_init(args.get(1..).unwrap_or(&[])),
         "update" => run_work_update(args.get(1..).unwrap_or(&[])),
         "finish" => run_work_finish(args.get(1..).unwrap_or(&[])),
-        _ => Err("unknown work subcommand, supported: init, update, finish".to_string()),
+        "status" => run_work_status(args.get(1..).unwrap_or(&[])),
+        _ => Err("unknown work subcommand, supported: init, update, finish, status".to_string()),
     }
 }
 
@@ -263,6 +267,34 @@ fn run_work_finish(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
+fn run_work_status(args: &[String]) -> Result<(), String> {
+    if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
+        print_work_status_help();
+        return Ok(());
+    }
+    if !args.is_empty() {
+        return Err("work status does not accept arguments".to_string());
+    }
+
+    let cwd = env::current_dir().map_err(|e| format!("cannot resolve cwd: {e}"))?;
+    let meta_path = cwd.join(".work").join("WORK_META.json");
+    let meta = read_required_json_object(&meta_path)?;
+    let obj = meta
+        .as_object()
+        .ok_or_else(|| format!("{} must be a JSON object", meta_path.display()))?;
+
+    let state = obj
+        .get("work_state")
+        .and_then(Value::as_str)
+        .ok_or_else(|| format!("{} missing work_state", meta_path.display()))?;
+
+    println!(
+        "{{\"status\":\"ok\",\"work_state\":\"{}\"}}",
+        escape_json_string(state)
+    );
+    Ok(())
+}
+
 fn run_agent_init(args: &[String]) -> Result<(), String> {
     if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
         print_agent_init_help();
@@ -407,12 +439,16 @@ fn print_work_finish_help() {
     println!("camptask work finish");
 }
 
+fn print_work_status_help() {
+    println!("camptask work status");
+}
+
 fn ensure_git_available() -> Result<(), String> {
-    let status = Command::new("git")
+    let output = Command::new("git")
         .arg("--version")
-        .status()
+        .output()
         .map_err(|e| format!("failed to execute git: {e}"))?;
-    if status.success() {
+    if output.status.success() {
         Ok(())
     } else {
         Err("git is required".to_string())

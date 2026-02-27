@@ -15,6 +15,7 @@ It is not the convention itself and not tied to any specific agent runtime.
 
 - `init`
 - `work init`
+- `work status`
 - `work update`
 - `work finish`
 - `agent init`
@@ -82,6 +83,7 @@ camptask work init --branch feat/hello-worker --path /tmp/camptask-work-hello
 Advance lifecycle in worktree:
 
 ```bash
+camptask work status
 camptask work update --note "first iteration complete"
 camptask work finish
 ```
