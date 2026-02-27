@@ -10,6 +10,7 @@ Purpose: translate early `*.ref.md` ideas into current metatask/camptask vocabul
 - `Milestone` / `Objective` -> `campaign_run` objective + current `work_unit` goal
 - `Peer info` / cross-repo status -> `camp_handoff` constraints and dependency notes
 - worker exit summary -> `work_report`
+- command-centric execution shell -> dual-plane execution (`camptask` lifecycle plane + `git` code plane)
 
 ## 2) Leader Ref -> Leader v1 Rules
 
@@ -29,6 +30,7 @@ Mapped leader rules in current system:
 - **R5 (Dependency clarity):** encode external dependency status directly in `camp_handoff`.
 - **R6 (Lifecycle decision):** after `work_report`, choose `camptask work update` or `camptask work finish`.
 - **R7 (Reflection loop):** recurring failure pattern becomes metatask asset (`rule`/`prompt`/`template`/`tool action`).
+- **R8 (Infra parity):** treat `camptask` and `git` as peer infrastructure with distinct authority.
 
 ## 3) Worker Ref -> Worker v1 Rules
 
@@ -47,6 +49,7 @@ Mapped worker rules in current system:
 - **W4 (Structured output):** return explicit `work_report` including result, failure reason, and next-action hint.
 - **W5 (Failure sharpness):** if blocked, provide concrete blocker + minimal unblock proposal.
 - **W6 (No role drift):** worker does not redefine architecture; unresolved architecture questions return to leader.
+- **W7 (Prerequisite fail-fast):** if `camptask` lifecycle context is missing, stop and report.
 
 ## 4) Keep / Drop Decisions
 
