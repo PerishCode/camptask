@@ -306,10 +306,9 @@ fn run_agent_init(args: &[String]) -> Result<(), String> {
 
     let camptask_home = camptask_home()?;
     let prompts_dir = camptask_home.join("resources").join("prompts");
-    let leader_prompt = prompts_dir.join("LEADER.md");
-    let worker_prompt = prompts_dir.join("WORKER.md");
+    let unified_prompt = prompts_dir.join("UNIFIED.md");
 
-    if !leader_prompt.exists() || !worker_prompt.exists() {
+    if !unified_prompt.exists() {
         return Err(format!(
             "missing prompt resources in {} (run `camptask init` first)",
             prompts_dir.display()
@@ -344,19 +343,20 @@ fn run_agent_init(args: &[String]) -> Result<(), String> {
         .as_object_mut()
         .ok_or_else(|| "config field `agent` must be an object".to_string())?;
 
+    agents.remove("camptask.leader");
+    agents.remove("camptask.worker");
+
     agents.insert(
-        "camptask.leader".to_string(),
+        "camptask.unified".to_string(),
         json_agent_entry(
-            "camptask leader agent",
-            &format!("{{file:{}}}", leader_prompt.display()),
+            "camptask unified role-switch agent",
+            &format!("{{file:{}}}", unified_prompt.display()),
         ),
     );
-    agents.insert(
-        "camptask.worker".to_string(),
-        json_agent_entry(
-            "camptask worker agent",
-            &format!("{{file:{}}}", worker_prompt.display()),
-        ),
+
+    root.insert(
+        "default_agent".to_string(),
+        Value::String("camptask.unified".to_string()),
     );
 
     write_json_atomic(&config_path, &config)?;

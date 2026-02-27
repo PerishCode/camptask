@@ -101,8 +101,8 @@ Environment overrides:
 
 `camptask agent init` updates `${CAMPTASK_AGENT_OPENCODE_HOME}/opencode.json` by creating/updating:
 
-- `agent.camptask.leader.prompt = {file:${CAMPTASK_HOME}/resources/prompts/LEADER.md}`
-- `agent.camptask.worker.prompt = {file:${CAMPTASK_HOME}/resources/prompts/WORKER.md}`
+- `agent.camptask.unified.prompt = {file:${CAMPTASK_HOME}/resources/prompts/UNIFIED.md}`
+- `default_agent = camptask.unified`
 
 Uninstall:
 
