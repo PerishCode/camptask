@@ -40,13 +40,13 @@ cargo test
 
 ```bash
 curl -fsSL -o /tmp/camptask-install.sh https://raw.githubusercontent.com/PerishCode/camptask/main/scripts/install.sh
-bash /tmp/camptask-install.sh --version v0.1.1
+bash /tmp/camptask-install.sh --version v0.1.2
 ```
 
 Install to a custom prefix:
 
 ```bash
-bash /tmp/camptask-install.sh --version v0.1.1 --prefix /tmp/camptask-local
+bash /tmp/camptask-install.sh --version v0.1.2 --prefix /tmp/camptask-local
 ```
 
 Initialize resources (default target `~/.camptask/resources`, overwrite by default):
@@ -60,6 +60,22 @@ Custom target and no-overwrite:
 ```bash
 camptask init --target /tmp/camptask-resources --no-overwrite
 ```
+
+Initialize opencode agent config from prompt files:
+
+```bash
+camptask agent init
+```
+
+Environment overrides:
+
+- `CAMPTASK_HOME` (default: `~/.camptask`)
+- `CAMPTASK_AGENT_OPENCODE_HOME` (default: `~/.config/opencode`)
+
+`camptask agent init` updates `${CAMPTASK_AGENT_OPENCODE_HOME}/opencode.json` by creating/updating:
+
+- `agent.camptask.leader.prompt = {file:${CAMPTASK_HOME}/resources/prompts/LEADER.md}`
+- `agent.camptask.worker.prompt = {file:${CAMPTASK_HOME}/resources/prompts/WORKER.md}`
 
 Uninstall:
 

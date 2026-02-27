@@ -1,12 +1,13 @@
 pub mod app;
 
 use crate::app::App;
+use serde_json::Value;
 use std::env;
 use std::fs;
 use std::io::{Cursor, Write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use tempfile::tempdir;
+use tempfile::{NamedTempFile, tempdir};
 use zip::ZipArchive;
 
 const RELEASE_BASE_URL: &str = "https://github.com/PerishCode/camptask/releases/download";
@@ -20,7 +21,8 @@ pub fn run(app: &App) -> Result<(), String> {
 
     match args[0].as_str() {
         "init" => run_init(args.get(1..).unwrap_or(&[])),
-        _ => Err("unknown command, supported: init".to_string()),
+        "agent" => run_agent(args.get(1..).unwrap_or(&[])),
+        _ => Err("unknown command, supported: init, agent init".to_string()),
     }
 }
 
@@ -73,8 +75,137 @@ fn run_init(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
+fn run_agent(args: &[String]) -> Result<(), String> {
+    if args.is_empty() {
+        return Err("agent subcommand required, supported: init".to_string());
+    }
+
+    match args[0].as_str() {
+        "init" => run_agent_init(args.get(1..).unwrap_or(&[])),
+        _ => Err("unknown agent subcommand, supported: init".to_string()),
+    }
+}
+
+fn run_agent_init(args: &[String]) -> Result<(), String> {
+    if args.len() == 1 && (args[0] == "-h" || args[0] == "--help") {
+        print_agent_init_help();
+        return Ok(());
+    }
+    if !args.is_empty() {
+        return Err("agent init does not accept arguments".to_string());
+    }
+
+    let camptask_home = camptask_home()?;
+    let prompts_dir = camptask_home.join("resources").join("prompts");
+    let leader_prompt = prompts_dir.join("LEADER.md");
+    let worker_prompt = prompts_dir.join("WORKER.md");
+
+    if !leader_prompt.exists() || !worker_prompt.exists() {
+        return Err(format!(
+            "missing prompt resources in {} (run `camptask init` first)",
+            prompts_dir.display()
+        ));
+    }
+
+    let opencode_home = opencode_home()?;
+    let config_path = opencode_home.join("opencode.json");
+    fs::create_dir_all(&opencode_home).map_err(|e| {
+        format!(
+            "cannot create opencode home {}: {e}",
+            opencode_home.display()
+        )
+    })?;
+
+    let mut config = read_or_default_config(&config_path)?;
+    let root = config
+        .as_object_mut()
+        .ok_or_else(|| format!("{} must be a JSON object", config_path.display()))?;
+
+    if !root.contains_key("$schema") {
+        root.insert(
+            "$schema".to_string(),
+            Value::String("https://opencode.ai/config.json".to_string()),
+        );
+    }
+
+    let agent_value = root
+        .entry("agent".to_string())
+        .or_insert_with(|| Value::Object(serde_json::Map::new()));
+    let agents = agent_value
+        .as_object_mut()
+        .ok_or_else(|| "config field `agent` must be an object".to_string())?;
+
+    agents.insert(
+        "camptask.leader".to_string(),
+        json_agent_entry(
+            "camptask leader agent",
+            &format!("{{file:{}}}", leader_prompt.display()),
+        ),
+    );
+    agents.insert(
+        "camptask.worker".to_string(),
+        json_agent_entry(
+            "camptask worker agent",
+            &format!("{{file:{}}}", worker_prompt.display()),
+        ),
+    );
+
+    write_json_atomic(&config_path, &config)?;
+
+    println!("initialized opencode agents in {}", config_path.display());
+    Ok(())
+}
+
+fn json_agent_entry(description: &str, prompt_ref: &str) -> Value {
+    let mut obj = serde_json::Map::new();
+    obj.insert("mode".to_string(), Value::String("primary".to_string()));
+    obj.insert(
+        "description".to_string(),
+        Value::String(description.to_string()),
+    );
+    obj.insert("prompt".to_string(), Value::String(prompt_ref.to_string()));
+    Value::Object(obj)
+}
+
+fn read_or_default_config(path: &Path) -> Result<Value, String> {
+    if !path.exists() {
+        return Ok(Value::Object(serde_json::Map::new()));
+    }
+    let text = fs::read_to_string(path)
+        .map_err(|e| format!("cannot read config {}: {e}", path.display()))?;
+    serde_json::from_str(&text).map_err(|e| format!("cannot parse config {}: {e}", path.display()))
+}
+
+fn write_json_atomic(path: &Path, value: &Value) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("invalid config path {}", path.display()))?;
+    fs::create_dir_all(parent)
+        .map_err(|e| format!("cannot create directory {}: {e}", parent.display()))?;
+
+    let data = serde_json::to_vec_pretty(value)
+        .map_err(|e| format!("cannot serialize config {}: {e}", path.display()))?;
+
+    let mut tmp = NamedTempFile::new_in(parent)
+        .map_err(|e| format!("cannot create temp config in {}: {e}", parent.display()))?;
+    tmp.write_all(&data)
+        .map_err(|e| format!("cannot write temp config: {e}"))?;
+    tmp.write_all(b"\n")
+        .map_err(|e| format!("cannot finalize temp config: {e}"))?;
+    tmp.flush()
+        .map_err(|e| format!("cannot flush temp config: {e}"))?;
+    tmp.persist(path)
+        .map_err(|e| format!("cannot persist config {}: {}", path.display(), e.error))?;
+
+    Ok(())
+}
+
 fn print_init_help() {
     println!("camptask init [--target <path>] [--no-overwrite] [--url <resources-zip-url>]");
+}
+
+fn print_agent_init_help() {
+    println!("camptask agent init");
 }
 
 fn default_resources_url() -> String {
@@ -82,11 +213,33 @@ fn default_resources_url() -> String {
     format!("{RELEASE_BASE_URL}/v{version}/resources.zip")
 }
 
-fn default_resources_dir() -> Result<PathBuf, String> {
+fn home_dir() -> Result<PathBuf, String> {
     let home = env::var("HOME")
         .or_else(|_| env::var("USERPROFILE"))
         .map_err(|_| "cannot resolve home directory from HOME/USERPROFILE".to_string())?;
-    Ok(PathBuf::from(home).join(".camptask").join("resources"))
+    Ok(PathBuf::from(home))
+}
+
+fn camptask_home() -> Result<PathBuf, String> {
+    if let Ok(home) = env::var("CAMPTASK_HOME") {
+        if !home.trim().is_empty() {
+            return Ok(PathBuf::from(home));
+        }
+    }
+    Ok(home_dir()?.join(".camptask"))
+}
+
+fn opencode_home() -> Result<PathBuf, String> {
+    if let Ok(home) = env::var("CAMPTASK_AGENT_OPENCODE_HOME") {
+        if !home.trim().is_empty() {
+            return Ok(PathBuf::from(home));
+        }
+    }
+    Ok(home_dir()?.join(".config").join("opencode"))
+}
+
+fn default_resources_dir() -> Result<PathBuf, String> {
+    Ok(camptask_home()?.join("resources"))
 }
 
 fn download_resources_zip(url: &str) -> Result<Vec<u8>, String> {
