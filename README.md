@@ -36,6 +36,18 @@ cargo fmt --check
 cargo test
 ```
 
+## Local Hooks
+
+Set up repo-managed hooks:
+
+```bash
+bash scripts/setup-githooks.sh
+```
+
+Current pre-commit gate:
+
+- If `Cargo.toml` is staged, `Cargo.lock` must also be staged.
+
 ## Local Install
 
 ```bash
