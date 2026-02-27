@@ -14,10 +14,10 @@ It is not the convention itself and not tied to any specific agent runtime.
 ## Planned Commands (v0)
 
 - `init`
-- `switch`
-- `log`
-- `status`
-- `close`
+- `work init`
+- `work update`
+- `work finish`
+- `agent init`
 
 ## Layout
 
@@ -71,6 +71,19 @@ Custom target and no-overwrite:
 
 ```bash
 camptask init --target /tmp/camptask-resources --no-overwrite
+```
+
+Initialize isolated worker worktree (required `--branch` + `--path`):
+
+```bash
+camptask work init --branch feat/hello-worker --path /tmp/camptask-work-hello
+```
+
+Advance lifecycle in worktree:
+
+```bash
+camptask work update --note "first iteration complete"
+camptask work finish
 ```
 
 Initialize opencode agent config from prompt files:
