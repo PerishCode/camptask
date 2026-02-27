@@ -1,0 +1,3 @@
+# camptask
+
+Initial repository setup.
