@@ -15,13 +15,13 @@ fn run_and_read_stdout(args: &[&str]) -> String {
 }
 
 #[test]
-fn resources_init_placeholder_smoke() {
-    let stdout = run_and_read_stdout(&["resources", "init"]);
-    assert_eq!(stdout.trim(), "camptask resources init skeleton ready");
-}
-
-#[test]
 fn camp_check_lite_placeholder_smoke() {
     let stdout = run_and_read_stdout(&["camp", "check-lite"]);
     assert_eq!(stdout.trim(), "camptask camp check-lite skeleton ready");
+}
+
+#[test]
+fn resources_update_placeholder_smoke() {
+    let stdout = run_and_read_stdout(&["resources", "update"]);
+    assert!(stdout.contains("updated resources at"));
 }

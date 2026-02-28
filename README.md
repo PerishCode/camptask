@@ -2,10 +2,10 @@
 
 `camptask` is a minimal, agent-agnostic runtime guard CLI.
 
-This repository currently provides a CLI skeleton with a `hello` smoke command and placeholders for:
+This repository currently provides a CLI skeleton with a `hello` smoke command and initial resources workflow:
 
 - `resources init|update|status|doctor`
-- `camp init|check-lite|archive`
+- `camp init|check-lite|archive` (placeholders)
 - `self-update`
 
 ## Quick start
@@ -13,6 +13,7 @@ This repository currently provides a CLI skeleton with a `hello` smoke command a
 ```bash
 cargo run --bin camptask -- hello
 cargo run --bin camptask -- resources init
+cargo run --bin camptask -- resources update --dry-run
 cargo run --bin camptask -- camp check-lite
 ```
 

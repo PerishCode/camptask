@@ -1,5 +1,6 @@
 pub mod app;
 pub mod config;
+pub mod resources;
 pub mod self_update;
 
 use anyhow::Result;
@@ -16,16 +17,16 @@ pub fn run(app: &dyn AppContext) -> Result<RunResult> {
         }
         Command::Resources(command) => match command {
             ResourcesCommand::Init => {
-                println!("camptask resources init skeleton ready");
+                resources::init(&app.config().resource_home)?;
             }
-            ResourcesCommand::Update => {
-                println!("camptask resources update skeleton ready");
+            ResourcesCommand::Update { dry_run } => {
+                resources::update(&app.config().resource_home, *dry_run)?;
             }
             ResourcesCommand::Status => {
-                println!("camptask resources status skeleton ready");
+                resources::status(&app.config().resource_home)?;
             }
             ResourcesCommand::Doctor => {
-                println!("camptask resources doctor skeleton ready");
+                resources::doctor(&app.config().resource_home)?;
             }
         },
         Command::Camp(command) => match command {
