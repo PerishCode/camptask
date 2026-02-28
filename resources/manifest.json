@@ -3,6 +3,10 @@
   "name": "camptask resources",
   "contents": [
     "prompts/UNIFIED.md",
+    "schemas/camp_event.v0.schema.json",
+    "schemas/camp_metadata.v0.schema.json",
+    "specs/camp_runtime_v0.md",
+    "specs/check_lite_v0.json",
     "templates/camp_handoff.md",
     "templates/work_report.md"
   ]

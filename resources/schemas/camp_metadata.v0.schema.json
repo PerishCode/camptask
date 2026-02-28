@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "camptask://schemas/camp_metadata.v0",
+  "title": "camp metadata v0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "phase_stack",
+    "current_phase",
+    "log_stream_id",
+    "last_sync_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "camp_metadata.v0"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase_stack": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9]+\\.[0-9]+$"
+      }
+    },
+    "current_phase": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "log_stream_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "last_sync_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ext": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

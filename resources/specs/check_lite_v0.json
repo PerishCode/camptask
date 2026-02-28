@@ -1,0 +1,71 @@
+{
+  "schema_version": "check_lite_rules.v0",
+  "name": "camptask check-lite",
+  "result_contract": [
+    "pass",
+    "warn",
+    "fail"
+  ],
+  "rules": [
+    {
+      "id": "R001_CAMP_DIR_EXISTS",
+      "level": "fail",
+      "target": ".camp/",
+      "description": "`.camp/` must exist in current workspace."
+    },
+    {
+      "id": "R002_METADATA_EXISTS",
+      "level": "fail",
+      "target": ".camp/metadata.json",
+      "description": "`metadata.json` must exist."
+    },
+    {
+      "id": "R003_METADATA_SCHEMA_VALID",
+      "level": "fail",
+      "target": ".camp/metadata.json",
+      "description": "`metadata.json` must satisfy camp_metadata.v0 schema."
+    },
+    {
+      "id": "R004_MAIN_EXISTS",
+      "level": "fail",
+      "target": ".camp/MAIN.md",
+      "description": "`MAIN.md` must exist."
+    },
+    {
+      "id": "R005_PHASES_DIR_EXISTS",
+      "level": "fail",
+      "target": ".camp/phases/",
+      "description": "Phase directory must exist."
+    },
+    {
+      "id": "R006_CURRENT_PHASE_POINTER_VALID",
+      "level": "fail",
+      "target": ".camp/phases/<current_phase>.md",
+      "description": "If `current_phase` is set, its phase file must exist."
+    },
+    {
+      "id": "R007_PHASE_STACK_TOP_MATCH",
+      "level": "warn",
+      "target": ".camp/metadata.json",
+      "description": "If `phase_stack` is non-empty, top element should equal `current_phase`."
+    },
+    {
+      "id": "R008_LOG_STREAM_ID_PRESENT",
+      "level": "fail",
+      "target": ".camp/metadata.json",
+      "description": "`log_stream_id` must be non-empty."
+    },
+    {
+      "id": "R009_LOG_SINK_WRITABLE",
+      "level": "warn",
+      "target": "${CAMPTASK_HOME}/logs/<log_stream_id>.ndjson",
+      "description": "Log stream path should be writable for append."
+    },
+    {
+      "id": "R010_LAST_SYNC_AT_VALID",
+      "level": "warn",
+      "target": ".camp/metadata.json",
+      "description": "`last_sync_at` should be a valid RFC3339 date-time."
+    }
+  ]
+}

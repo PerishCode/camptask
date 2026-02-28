@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "camptask://schemas/camp_event.v0",
+  "title": "camp event envelope v0",
+  "type": "object",
+  "required": [
+    "ts",
+    "run_id",
+    "phase_id",
+    "actor",
+    "event",
+    "result"
+  ],
+  "properties": {
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9]+\\.[0-9]+$"
+    },
+    "actor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event": {
+      "type": "string",
+      "minLength": 1
+    },
+    "result": {
+      "type": "string",
+      "minLength": 1
+    },
+    "payload": {},
+    "meta": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}
